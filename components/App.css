@@ -1,0 +1,41 @@
+body {
+  background-color:rgb(151, 187, 187);
+}
+
+.App {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+button {
+  background-color: #326559;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 25px;
+  margin: 5px;
+  font-size: 16px;
+}
+
+button:hover {
+  background-color: #22322a;
+}
+
+h1 {
+  font-size: 50px;
+  color: #272626;
+}
+
+h2 {
+ font-size: 32px;
+ color: #272626;
+}
+
+.lap-list {
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
+  text-align: center;
+}
