@@ -1,72 +1,86 @@
 import React, { useState, useEffect } from "react";
+import { View, Text, FlatList } from "react-native";
+import { Button } from "react-native-elements";
 
-function RunningExercise({ name }) {
+export default function RunningExercise({ route, navigation }) {
+  const { exercise, exercises } = route.params;
+
   const [seconds, setSeconds] = useState(0);
   const [running, setRunning] = useState(false);
   const [laps, setLaps] = useState([]);
 
   useEffect(() => {
     let timer = null;
-
     if (running) {
       timer = setInterval(() => {
         setSeconds((prev) => prev + 1);
       }, 1000);
     }
-
     return () => clearInterval(timer);
   }, [running]);
 
-  // Format timer to 00:00
   const formatTime = (totalSeconds) => {
     const mins = Math.floor(totalSeconds / 60);
     const secs = totalSeconds % 60;
-
-    const paddedMins = String(mins).padStart(2, "0");
-    const paddedSecs = String(secs).padStart(2, "0");
-
-    return `${paddedMins}:${paddedSecs}`;
+    return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
   };
 
-  // Record Lap
   const recordLap = () => {
     const currentTime = formatTime(seconds);
     setLaps((prevLaps) => [...prevLaps, currentTime]);
   };
 
+  const goToSuggested = () => {
+    const next = exercises.find((e) => e.id === exercise.suggested);
+    if (!next) return;
+
+    if (next.type === "reps") {
+      navigation.push("Reps", { exercise: next, exercises });
+    } else if (next.type === "duration") {
+      navigation.push("Duration", { exercise: next, exercises });
+    } else if (next.type === "running") {
+      navigation.push("Running", { exercise: next, exercises });
+    }
+  };
+
   return (
-    <div>
-      <h1>{name}</h1>
-      <h2>{formatTime(seconds)}</h2>
+    <View style={{ padding: 20 }}>
+      <Text style={{ fontSize: 24, marginBottom: 10 }}>{exercise.name}</Text>
+      <Text style={{ fontSize: 30, marginBottom: 20 }}>{formatTime(seconds)}</Text>
 
-      {!running && (
-        <button onClick={() => setRunning(true)}>Start</button>
-      )}
-
+      {!running && <Button title="Start" onPress={() => setRunning(true)} />}
+      {running && <Button title="Stop" onPress={() => setRunning(false)} />}
       {running && (
-        <button onClick={() => setRunning(false)}>Stop</button>
+        <Button title="Record Lap" onPress={recordLap} buttonStyle={{ backgroundColor: "purple", marginTop: 10 }} />
       )}
+      <Button
+        title="Reset"
+        onPress={() => {
+          setRunning(false);
+          setSeconds(0);
+          setLaps([]);
+        }}
+        buttonStyle={{ backgroundColor: "orange", marginTop: 10 }}
+      />
 
-      {running && (
-        <button onClick={recordLap}>Record Lap</button>
-      )}
+      <Text style={{ fontSize: 20, marginTop: 20 }}>Laps</Text>
+      <FlatList
+        data={laps}
+        keyExtractor={(item, index) => index.toString()}
+        renderItem={({ item, index }) => <Text>Lap {index + 1}: {item}</Text>}
+      />
 
-      <button onClick={() => {
-        setRunning(false);
-        setSeconds(0);
-      }}>
-        Reset</button>
-      
-      <h2>Laps</h2>
-      <ul className="lap-list">
-        {laps.map((lap, index) => (
-          <li key={index}>
-            Lap {index + 1}: {lap}
-        </li>
-      ))}
-      </ul>
-    </div>
+      <Button
+        title="Suggested Exercise"
+        onPress={goToSuggested}
+        buttonStyle={{ backgroundColor: "green", marginTop: 10 }}
+      />
+
+      <Button
+        title="Home"
+        onPress={() => navigation.navigate("Home")}
+        buttonStyle={{ backgroundColor: "blue", marginTop: 10 }}
+      />
+    </View>
   );
 }
-
-export default RunningExercise;
