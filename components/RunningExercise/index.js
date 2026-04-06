@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, FlatList } from "react-native";
 import { Button } from "react-native-elements";
+import styles from "../styles";
 
 export default function RunningExercise({ route, navigation }) {
   const { exercise, exercises } = route.params;
@@ -34,52 +35,49 @@ export default function RunningExercise({ route, navigation }) {
     const next = exercises.find((e) => e.id === exercise.suggested);
     if (!next) return;
 
-    if (next.type === "reps") {
-      navigation.push("Reps", { exercise: next, exercises });
+    if (next.type === "repetiton") {
+      navigation.push("Repetition", { exercise: next, exercises });
     } else if (next.type === "duration") {
       navigation.push("Duration", { exercise: next, exercises });
-    } else if (next.type === "running") {
-      navigation.push("Running", { exercise: next, exercises });
     }
   };
 
   return (
-    <View style={{ padding: 20 }}>
-      <Text style={{ fontSize: 24, marginBottom: 10 }}>{exercise.name}</Text>
-      <Text style={{ fontSize: 30, marginBottom: 20 }}>{formatTime(seconds)}</Text>
+    <View style={styles.container}>
+      <Text style={styles.title}>{exercise.name}</Text>
+      <Text style={styles.counter}>{formatTime(seconds)}</Text>
 
-      {!running && <Button title="Start" onPress={() => setRunning(true)} />}
-      {running && <Button title="Stop" onPress={() => setRunning(false)} />}
-      {running && (
-        <Button title="Record Lap" onPress={recordLap} buttonStyle={{ backgroundColor: "purple", marginTop: 10 }} />
-      )}
-      <Button
-        title="Reset"
-        onPress={() => {
-          setRunning(false);
-          setSeconds(0);
-          setLaps([]);
-        }}
-        buttonStyle={{ backgroundColor: "orange", marginTop: 10 }}
-      />
+      <View style={{marginBottom:20}}>
+      {!running && (<Button title="Start" onPress={() => setRunning(true)} buttonStyle={styles.button} />)}
+      {running && (<Button title="Stop" onPress={() => setRunning(false)} buttonStyle={styles.stopButton} />)}
+      {running && (<Button title="Record Lap" onPress={recordLap} buttonStyle={styles.button} />)}
+      <Button title="Reset" onPress={() => {setRunning(false); setSeconds(0); setLaps([]);}} buttonStyle={styles.resetButton}/>
+      </View>
 
-      <Text style={{ fontSize: 20, marginTop: 20 }}>Laps</Text>
-      <FlatList
-        data={laps}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={({ item, index }) => <Text>Lap {index + 1}: {item}</Text>}
+  
+      <View style={{width: "80%", maxHeight: 150, marginBottom: 20 }}>
+      <Text style={styles.lapText}>Laps</Text>
+        <FlatList
+          data={laps}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({ item, index }) => (
+            <Text style={{ fontSize: 16, marginVertical: 2, textAlign: "center", }}>
+              Lap {index + 1}: {item}
+            </Text>
+  )}
       />
+      </View>
 
       <Button
         title="Suggested Exercise"
         onPress={goToSuggested}
-        buttonStyle={{ backgroundColor: "green", marginTop: 10 }}
+        buttonStyle={styles.sugButton}
       />
 
       <Button
         title="Home"
         onPress={() => navigation.navigate("Home")}
-        buttonStyle={{ backgroundColor: "blue", marginTop: 10 }}
+        buttonStyle={styles.homeButton}
       />
     </View>
   );
